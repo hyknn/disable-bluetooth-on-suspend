@@ -1,31 +1,32 @@
 ## Disable Bluetooth on suspend in Linux
 
-To disable Bluetooth on suspend in Linux, you can add a script to the /lib/systemd/system-sleep/ directory. The script should contain the command "rfkill block bluetooth" to block the Bluetooth device, and "rfkill unblock bluetooth" to unblock it.
+To disable Bluetooth on suspend in Pop!_OS, you can create a script to run the command "rfkill block bluetooth" when the system is going into suspend, and "rfkill unblock bluetooth" when the system is resuming.
 
 You can create the script by running the following command:
 
 ```
-sudo nano /lib/systemd/system-sleep/disable-bluetooth.sh
+sudo nano /etc/pm/sleep.d/disable_bluetooth
 ```
 
-Then paste the following content:
+Then, paste the following into the script:
 
 ```
 #!/bin/sh
-case $1 in
-        pre)
-                rfkill block bluetooth
-                ;;
-        post)
-                rfkill unblock bluetooth
-                ;;
+
+case "${1}" in
+    hibernate|suspend)
+        rfkill block bluetooth
+        ;;
+    resume|thaw)
+        rfkill unblock bluetooth
+        ;;
 esac
 ```
 
-Make the script executable:
+Save the script and make it executable:
 
 ```
-sudo chmod +x /lib/systemd/system-sleep/disable-bluetooth.sh
+sudo chmod +x /etc/pm/sleep.d/disable_bluetooth
 ```
 
 This should disable Bluetooth on suspend and re-enable it on resume. To check the current state of the Bluetooth, you can use the command "rfkill list"
